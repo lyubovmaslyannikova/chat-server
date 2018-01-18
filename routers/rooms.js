@@ -1,37 +1,47 @@
 const express = require('express'),
-	router = express.Router();
+	connection = require('../config/mysql').getConnection();
+
+const router = express.Router();
+
+router.use((res, req, next) => {
+	// checkAuth
+	next();
+});
  
-router.get('/', function(req, res) {
-	const query = 'select id, name, description from rooms';
+router.route('/')
+	.get((req, res) => {
+		const query = 'select id, name, description from rooms';
 
-	connection.query(query, function(err, results) {
-		if (err) { 
-			res.status(500).send(`${err.code}: ${err.sqlMessage}`);
-		}
+		connection.query(query, function(err, results) {
+			if (err) { 
+				res.status(500).send(`${err.code}: ${err.sqlMessage}`);
+				return;
+			}
 
-		res.json(results);
+			res.json(results);
+		});
+	})
+	.post((req, res) => {
+		const query = 'insert into rooms(name) values (?)';   
+
+		connection.query(query, [req.body.name], function(err, results) {
+			if (err) { 
+				res.status(500).send(`${err.code}: ${err.sqlMessage}`);
+				return;
+			}
+
+			res.json(results);
+		});
 	});
-});
 
-router.post('/', function(req, res) {
-	const query = 'insert into rooms(name) values (?)';   
-
-	connection.query(query, [req.body.name], function(err, results) {
-		if (err) { 
-			res.status(500).send(`${err.code}: ${err.sqlMessage}`);
-		}
-
-		res.json(results);
-	});
-});
-
-router.route('/rooms/:id') 
-	.get(function(req, res) {
+router.route('/:id')
+	.get((req, res) => {
 		let query = 'select ms.id, content, users.username, ms.date from messages as ms left join users on ms.user = users.id where room = ?'; 
 
 		connection.query(query, [req.params.id], function(err, results) {
 			if (err) {
 				res.status(500).send(`${err.code}: ${err.sqlMessage}`);
+				return;
 			}
 
 			res.json(results);
@@ -43,6 +53,7 @@ router.route('/rooms/:id')
 		connection.query(query, function(err, results) {
 			if (err) { 
 				res.status(500).send(`${err.code}: ${err.sqlMessage}`);
+				return;
 			}
 
 			res.json(results);
@@ -54,6 +65,7 @@ router.route('/rooms/:id')
 		connection.query(query, [req.params.id], function(err, results) {
 			if (err) { 
 				res.status(500).send(`${err.code}: ${err.sqlMessage}`);
+				return;
 			}
 
 			res.json(results);
