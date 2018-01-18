@@ -2,7 +2,7 @@ const express = require('express');
 const config = require('./config'); 
 const bodyParser = require('body-parser');
 
-const roomRouter = require('./routers/rooms'); 
+const roomsRouter = require('./routers/rooms'); 
 const messagesRouter = require('./routers/messages'); 
 
 const app = express();
@@ -19,7 +19,7 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json());
 
-app.use('/rooms', roomRouter);
+app.use('/rooms', roomsRouter);
 app.use('/messages', messagesRouter);
 
 app.use((err, req, res, next) => {
